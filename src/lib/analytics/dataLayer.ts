@@ -15,6 +15,7 @@
  */
 
 import { EventName, type AnalyticsEvent } from "./events";
+import { setClarityConsent } from "./clarity";
 
 /* --------------------------------- Types --------------------------------- */
 
@@ -34,6 +35,12 @@ declare global {
       sessionId: string;
       debug: boolean;
       initialized: boolean;
+    };
+    // Set by the inline bootstrap script in layout.tsx after first/last-touch
+    // attribution is captured. Read by clarity.ts to tag Clarity sessions.
+    __rasAttribution?: {
+      firstTouch?: Record<string, string>;
+      lastTouch?: Record<string, string>;
     };
   }
 }
@@ -321,23 +328,7 @@ export function consentGranted(
     window.gtag("consent", "update", granted);
   }
   // Microsoft Clarity parity: grant consent so session recording resumes.
+  // setClarityConsent is imported from ./clarity (uses the official
+  // @microsoft/clarity package's typed Clarity.consent() helper).
   setClarityConsent(true);
-}
-
-/**
- * Set Microsoft Clarity consent state. Call this in lockstep with the Google
- * Consent Mode v2 grant/deny flow so Clarity session recordings respect the
- * user's cookie choice (required for EEA/UK/CH compliance).
- *
- * - granted = true  -> clarity("consent", "granted")  : session recording resumes
- * - granted = false -> clarity("consent", "denied")   : session recording pauses
- *   (Clarity still collects some aggregate, non-identifying analytics)
- *
- * Safe to call before the Clarity tag loads — `window.clarity` is a queue
- * function (same pattern as gtag/fbq) that flushes once the real script loads.
- */
-export function setClarityConsent(granted: boolean): void {
-  if (typeof window === "undefined") return;
-  if (typeof window.clarity !== "function") return;
-  window.clarity("consent", granted ? "granted" : "denied");
 }

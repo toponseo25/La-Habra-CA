@@ -33,6 +33,11 @@ import {
   getOrCreateSessionId,
   deriveSource,
 } from "./attribution";
+import {
+  trackClarityEvent,
+  tagClaritySessionWithAttribution,
+  identifyClarityUser,
+} from "./clarity";
 
 /* --------------------------- Public tracking API --------------------------- */
 
@@ -89,6 +94,10 @@ export function trackCtaClick(
       page_section: ctaLocation,
     },
   });
+  // Fire as a Clarity custom event so the session recording can be filtered by
+  // "clicked a CTA" in the Clarity dashboard. Also tag the session with the
+  // specific CTA label for finer filtering.
+  trackClarityEvent("cta_click");
 }
 
 export function trackClickToCall(location: string, phone: string): void {
@@ -96,6 +105,7 @@ export function trackClickToCall(location: string, phone: string): void {
     event: EventName.click_to_call,
     payload: { cta_location: location, phone, page_section: location },
   });
+  trackClarityEvent("click_to_call");
 }
 
 export function trackFormStart(formId: string, formName: string): void {
@@ -103,6 +113,8 @@ export function trackFormStart(formId: string, formName: string): void {
     event: EventName.form_start,
     payload: { form_id: formId, form_name: formName, page_section: "lead_form" },
   });
+  // High-signal Clarity event — lets you filter sessions by "started the form"
+  trackClarityEvent("form_start");
 }
 
 export function trackFormFieldFocus(
@@ -152,6 +164,9 @@ export function trackFormSubmit(
       page_section: "lead_form",
     },
   });
+  // Clarity: tag with the service interest + fire as a custom event so you
+  // can filter recordings by "submitted the form" / "interested in AC Repair".
+  trackClarityEvent("form_submit");
 }
 
 export function trackLead(
@@ -180,6 +195,12 @@ export function trackLead(
     event: EventName.meta_lead,
     payload,
   });
+  // Clarity: fire the highest-signal custom event + tag the session with the
+  // service interest + the lead id so the recording is filterable + stitches
+  // to the CRM record. Also upgrade the session for recording priority (lead
+  // sessions are the most valuable to review).
+  trackClarityEvent("generate_lead");
+  if (opts.leadId) identifyClarityUser(opts.leadId);
 }
 
 export function trackServiceCardView(
@@ -249,6 +270,12 @@ export function setupAutoTracking(): () => void {
 
   // 2. Capture attribution (first/last touch) on first load.
   captureAttribution();
+
+  // 2b. Tag the Clarity session with attribution so every recording is
+  //     filterable in the Clarity dashboard by source campaign (google-ads,
+  //     meta-ads, organic, direct, etc.). Reads window.__rasAttribution which
+  //     was set by the inline bootstrap script in layout.tsx.
+  tagClaritySessionWithAttribution();
 
   // 3. Fire the initial page view (after identity + attribution are ready).
   //    Use rAF so it fires after paint, not before.

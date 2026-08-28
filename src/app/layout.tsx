@@ -420,36 +420,37 @@ fbq('track', 'PageView');`,
           />
         )}
 
-        {/* Microsoft Clarity — session recordings + heatmaps.
-            Loaded unconditionally (advanced consent mode, same as gtag.js) so
-            it can send consent-less pings even before the user accepts. The
-            follow-up inline script immediately sets the initial consent state
-            from localStorage so no session recording happens until the user
-            explicitly accepts (EEA/UK/CH compliant). */}
+        {/* Microsoft Clarity — when GTM is the canonical tag manager (live),
+            GTM loads the Clarity tag itself. We DO NOT load clarity.js inline
+            here (that would cause "Multiple Clarity tags detected" — CL001).
+            Instead, we only initialize the window.clarity QUEUE function so
+            the consent-init script below can queue a consent call BEFORE GTM
+            loads Clarity. When GTM's Clarity tag loads, it picks up the
+            existing window.clarity queue and flushes it. This preserves the
+            advanced-consent-mode ordering (consent set before tag loads)
+            without double-loading the tag.
+            When GTM is NOT configured (placeholder), we fall back to loading
+            clarity.js inline via the official @microsoft/clarity package's
+            Clarity.init() (called from the React layer in clarity.ts). */}
         {BUSINESS.clarityProjectId && !isPlaceholder(BUSINESS.clarityProjectId) ? (
           <>
             <script
               dangerouslySetInnerHTML={{
-                __html: `(function(c,l,a,r,i,t,y){
-    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-})(window, document, "clarity", "script", "${BUSINESS.clarityProjectId}");`,
+                __html: `window.clarity = window.clarity || function(){(window.clarity.q = window.clarity.q || []).push(arguments);};`,
               }}
             />
-            {/* Set initial Clarity consent from localStorage BEFORE the real
-                Clarity tag loads. window.clarity is the queue function at this
-                point (created by the snippet above), so this call is queued
-                and flushed when clarity.js loads. The ConsentBanner component
-                updates this on subsequent user interaction. */}
+            {/* Set initial Clarity consent from localStorage. This call is
+                queued on the window.clarity function above; when GTM's
+                Clarity tag loads, it flushes the queue. The ConsentBanner
+                component updates consent on subsequent user interaction. */}
             <script
               dangerouslySetInnerHTML={{
                 __html: `try {
   var sc = JSON.parse(localStorage.getItem('ras_consent_v1') || 'null');
   if (window.clarity && sc && sc.choice === 'granted') {
-    window.clarity('consent', 'granted');
+    window.clarity('consent', true);
   } else if (window.clarity) {
-    window.clarity('consent', 'denied');
+    window.clarity('consent', false);
   }
 } catch(e) {}`,
               }}
