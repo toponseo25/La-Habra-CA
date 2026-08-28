@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDbAvailable } from "@/lib/db";
 import { BUSINESS } from "@/lib/business";
 import { z } from "zod";
 
@@ -119,6 +119,24 @@ export async function POST(req: Request) {
   // --- Persist lead ---
   let lead;
   try {
+    if (!isDbAvailable || !db) {
+      // No DB (e.g. Vercel serverless without a hosted DB configured). Log
+      // the lead to the server console so it's at least visible in function
+      // logs, then return a friendly response that routes the visitor to call.
+      console.warn(
+        "[leads] DB unavailable — logging lead to console only (configure a hosted DB in Vercel to persist).",
+        { name: `${d.firstName} ${d.lastName}`, phone: d.phone, email: d.email, service: d.serviceNeeded, zip: d.zipCode, source: inferredSource },
+      );
+      return NextResponse.json({
+        ok: true,
+        leadId: "console-only",
+        inServiceArea,
+        message:
+          "Thanks! Your request was received. For the fastest response, please call us directly.",
+        phone: BUSINESS.phoneDisplay,
+        dbPersisted: false,
+      });
+    }
     lead = await db.lead.create({
       data: {
         firstName: d.firstName,

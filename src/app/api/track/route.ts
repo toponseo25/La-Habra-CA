@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, isDbAvailable } from "@/lib/db";
 
 /**
  * Server-side analytics event collector.
@@ -117,6 +117,14 @@ export async function POST(req: Request) {
   const source = attribution.source ?? "direct";
 
   try {
+    if (!isDbAvailable || !db) {
+      // No DB available (e.g. Vercel serverless without a hosted DB). The
+      // event is still received + validated; we just don't persist it. Client-
+      // side pixels (GA4 / Meta) still fired before this call, so tracking
+      // works — only the server-side log is missing. Return 204 so sendBeacon
+      // doesn't retry.
+      return new NextResponse(null, { status: 204 });
+    }
     await db.trackingEvent.create({
       data: {
         clientId: evt.client_id,

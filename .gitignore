@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -52,3 +53,10 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# Prisma / SQLite local database
+# The .db file should NEVER be committed — it contains lead PII + is a
+# local-only artifact. On Vercel, swap to a hosted DB (see README).
+/db/*.db
+/db/*.db-journal
+*.db-journal
