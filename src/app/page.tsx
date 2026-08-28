@@ -13,6 +13,7 @@ import { Footer } from "@/components/landing/Footer";
 import { StickyMobileCta } from "@/components/landing/StickyMobileCta";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { BackToTop } from "@/components/landing/BackToTop";
+import { ConsentBanner } from "@/components/landing/ConsentBanner";
 
 /**
  * RAS Heating & Air — La Habra HVAC Lead Generation Landing Page.
@@ -67,6 +68,7 @@ export default function Home() {
       <Footer />
       <StickyMobileCta />
       <BackToTop />
+      <ConsentBanner />
     </div>
   );
 }

@@ -41,6 +41,10 @@ export const EventName = {
   meta_lead: "Lead",
   meta_contact: "Contact",
   meta_schedule: "Schedule",
+
+  // --- Consent Mode v2 events (infrastructure — not mirrored to server) ---
+  consent_default: "consent_default",
+  consent_update: "consent_update",
 } as const;
 
 export type EventName = (typeof EventName)[keyof typeof EventName];
@@ -147,6 +151,11 @@ export interface ExternalLinkClickPayload extends BasePayload {
   link_domain: string;
 }
 
+export interface ConsentUpdatePayload extends BasePayload {
+  consent_choice: "granted" | "denied";
+  source: "banner" | "stored" | "manual";
+}
+
 /* ----------------------- Discriminated union of events ----------------------- */
 
 export type AnalyticsEvent =
@@ -180,7 +189,12 @@ export type AnalyticsEvent =
     }
   | { event: typeof EventName.meta_lead; payload: GenerateLeadPayload }
   | { event: typeof EventName.meta_contact; payload: GenerateLeadPayload }
-  | { event: typeof EventName.meta_schedule; payload: GenerateLeadPayload };
+  | { event: typeof EventName.meta_schedule; payload: GenerateLeadPayload }
+  | {
+      event: typeof EventName.consent_default;
+      payload: ConsentUpdatePayload;
+    }
+  | { event: typeof EventName.consent_update; payload: ConsentUpdatePayload };
 
 /** Scroll depth thresholds we report (GA4 standard + 90% for near-complete). */
 export const SCROLL_THRESHOLDS = [25, 50, 75, 90, 100] as const;

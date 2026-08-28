@@ -8,7 +8,6 @@ import {
   trackFormStart,
   trackFormSubmit,
   trackFaqExpand,
-  consentGranted,
 } from "@/lib/analytics";
 
 /**
@@ -20,9 +19,15 @@ import {
  *   2. Wire up all automatic engagement tracking (scroll depth, engagement
  *      time, external link clicks) via setupAutoTracking().
  *   3. Fire the initial page_view + landing_page_view events.
- *   4. Uplift Google Consent Mode v2 to "granted" (US-only HVAC campaign — no
- *      cookie banner needed, but the consent-mode infrastructure is correct
- *      so the page is ready for any future region that requires it).
+ *   4. DO NOT auto-grant Google Consent Mode v2 — that is handled by the
+ *      <ConsentBanner /> component, which only calls consentGranted() when
+ *      the user explicitly accepts (or has a stored "granted" choice in
+ *      localStorage from a previous visit). This is the Google-recommended
+ *      Advanced Consent Mode pattern: gtag.js loads with consent = denied,
+ *      sends consent-less pings (cookieless) until the user grants, then
+ *      resumes full measurement. Without this, you lose modeled conversions
+ *      in Google Ads. See:
+ *      https://developers.google.com/tag-platform/security/guides/consent
  *   5. Wire up FORM ENGAGEMENT tracking via event delegation on #lead-form:
  *        - form_start: fires once on first field focus
  *        - form_field_focus: fires on every field focus (with cumulative count)
@@ -39,9 +44,11 @@ export function AnalyticsProvider() {
     // 1-3. Initialize data layer, identity, attribution, page view, + auto tracking.
     const cleanup = setupAutoTracking();
 
-    // 4. Uplift consent to granted for the US-only HVAC campaign. (Swap this
-    //    for a banner-driven uplift if the campaign expands to the EU/CA.)
-    consentGranted();
+    // 4. Consent: NOT auto-granted here. The <ConsentBanner /> component reads
+    //    localStorage on mount and applies any stored choice (granting if the
+    //    user previously accepted). On a first visit, the banner shows and
+    //    the user makes an explicit choice. gtag.js still loads with consent
+    //    denied (see layout.tsx), sending consent-less pings in the meantime.
 
     // 5. Form engagement tracking via delegation (no per-field listeners).
     const formCleanup = setupFormEngagementTracking();

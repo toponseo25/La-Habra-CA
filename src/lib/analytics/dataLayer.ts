@@ -148,9 +148,16 @@ function mirrorToServer(
   if (typeof window === "undefined") return;
   if (!clientId || clientId === "ssr") return;
 
-  // Don't mirror identity_set / consent events — they're infrastructure, not
-  // user behavior, and would just bloat the server log.
-  if (event.event === ("identity_set" as string)) return;
+  // Don't mirror infrastructure events (identity_set / consent_default /
+  // consent_update) — they're not user behavior and would just bloat the
+  // server log. Consent is enforced by the gtag.js + browser layer, not by us.
+  if (
+    event.event === ("identity_set" as string) ||
+    event.event === EventName.consent_default ||
+    event.event === EventName.consent_update
+  ) {
+    return;
+  }
 
   const body = {
     event: event.event,
