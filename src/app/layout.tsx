@@ -152,11 +152,10 @@ const localBusinessJsonLd = {
       closes: "17:00",
     },
   ],
-  sameAs: [
-    BUSINESS.googleBusinessProfileUrl,
-    BUSINESS.facebookUrl,
-    BUSINESS.instagramUrl,
-  ],
+  // sameAs: only include URLs that are ACTUAL RAS profiles (Google's
+  // guidelines warn against listing generic social homepages here). Until RAS
+  // provides real Facebook/Instagram profile URLs, we list only the GBP link.
+  sameAs: [BUSINESS.googleBusinessProfileUrl],
   hasOfferCatalog: {
     "@type": "OfferCatalog",
     name: "HVAC Services for La Habra Homeowners",

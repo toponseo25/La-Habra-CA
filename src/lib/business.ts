@@ -13,7 +13,12 @@
 export const BUSINESS = {
   name: "RAS Heating & Air",
   legalName: "RAS Heating & Air",
-  website: "https://www.ras-hvac.com",
+  // Production deployment URL. This is the canonical URL used by every SEO
+  // tag (canonical, OpenGraph, Twitter, JSON-LD @id/logo/image), the data
+  // layer's page_location, and the consent banner's privacy policy link.
+  // When the custom domain is connected in Vercel, update this to that
+  // domain (e.g. https://www.ras-hvac.com) and Vercel will redeploy.
+  website: "https://rasair.vercel.app",
   tagline: "Reliable HVAC Service in La Habra, CA",
 
   // --- Contact (placeholders — replace with verified RAS info before launch) ---
@@ -74,9 +79,14 @@ export const BUSINESS = {
   googleAdsConversionLabel: "xxxxxxxxxx",
 
   // --- Social / review profiles (placeholders — replace with verified URLs) ---
-  googleBusinessProfileUrl: "https://www.ras-hvac.com",
-  facebookUrl: "https://www.ras-hvac.com",
-  instagramUrl: "https://www.ras-hvac.com",
+  // googleBusinessProfileUrl is used as the "Read verified reviews on Google"
+  // CTA target. Until RAS provides the real GBP review URL, this points to a
+  // Google search for the business name + city so visitors land on real,
+  // attributable reviews instead of a placeholder homepage.
+  googleBusinessProfileUrl:
+    "https://www.google.com/search?q=RAS+Heating+%26+Air+La+Habra+CA+reviews",
+  facebookUrl: "https://www.facebook.com",
+  instagramUrl: "https://www.instagram.com",
 } as const;
 
 /**
