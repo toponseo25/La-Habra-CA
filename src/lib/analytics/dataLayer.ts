@@ -14,7 +14,7 @@
  *   4. In dev mode, logs the event to the console with a colored prefix
  */
 
-import type { AnalyticsEvent } from "./events";
+import { EventName, type AnalyticsEvent } from "./events";
 
 /* --------------------------------- Types --------------------------------- */
 
@@ -86,7 +86,15 @@ export function pushEvent(event: AnalyticsEvent): void {
   window.dataLayer!.push(enriched);
 
   // 2. Direct gtag fallback (works without GTM, picks up GA4 if its ID is set).
-  if (typeof window.gtag === "function") {
+  //    NOTE: the `gtag('config', ...)` call in layout.tsx already sends the
+  //    initial `page_view` (send_page_view: true). We must NOT also send
+  //    `page_view` via gtag('event', ...) here — that would double-count page
+  //    views in GA4. We still push it to dataLayer above (for GTM / debug) but
+  //    skip the gtag call for this one event. All other events go through gtag.
+  if (
+    typeof window.gtag === "function" &&
+    event.event !== EventName.page_view
+  ) {
     const { event: _evt, sent_at: _s, ...gtagParams } = enriched;
     window.gtag("event", event.event, gtagParams);
   }

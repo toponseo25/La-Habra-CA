@@ -63,11 +63,13 @@ export const BUSINESS = {
   licensed: true,
   insured: true,
 
-  // --- Tracking IDs (placeholders — replace with real container/pixel IDs) ---
-  // These are read by the analytics scripts in src/app/layout.tsx.
-  ga4MeasurementId: "G-XXXXXXXXXX", // replace with real GA4 Measurement ID
-  gtmContainerId: "GTM-XXXXXXX", // replace with real GTM container ID
-  metaPixelId: "XXXXXXXXXXXXXXX", // replace with real Meta Pixel ID
+  // --- Tracking IDs ---
+  // These are read by the analytics scripts in src/app/layout.tsx. Real IDs
+  // render the corresponding tag; placeholder IDs (containing "XXXX") render
+  // as no-ops so the page ships zero tracking until the ID is dropped in.
+  ga4MeasurementId: "G-L1L334DY0K", // Google Analytics 4 — LIVE
+  gtmContainerId: "GTM-XXXXXXX", // Google Tag Manager — placeholder (set to enable GTM-managed tags)
+  metaPixelId: "XXXXXXXXXXXXXXX", // Meta Pixel — placeholder
   googleAdsConversionId: "AW-XXXXXXXXX",
   googleAdsConversionLabel: "xxxxxxxxxx",
 
