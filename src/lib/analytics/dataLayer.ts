@@ -23,6 +23,12 @@ declare global {
     dataLayer?: Record<string, unknown>[];
     gtag?: (...args: unknown[]) => void;
     fbq?: (...args: unknown[]) => void;
+    // Microsoft Clarity — queue function (same shape as gtag/fbq). The Clarity
+    // bootstrap script (layout.tsx) sets `window.clarity` to a function that
+    // pushes its arguments onto a queue until the real Clarity tag loads; once
+    // loaded, queued calls are flushed. We call `clarity("consent", ...)` on it
+    // for Consent Mode v2 parity with GA4.
+    clarity?: (...args: unknown[]) => void;
     __rasAnalytics?: {
       clientId: string;
       sessionId: string;
@@ -314,4 +320,24 @@ export function consentGranted(
   if (typeof window.gtag === "function") {
     window.gtag("consent", "update", granted);
   }
+  // Microsoft Clarity parity: grant consent so session recording resumes.
+  setClarityConsent(true);
+}
+
+/**
+ * Set Microsoft Clarity consent state. Call this in lockstep with the Google
+ * Consent Mode v2 grant/deny flow so Clarity session recordings respect the
+ * user's cookie choice (required for EEA/UK/CH compliance).
+ *
+ * - granted = true  -> clarity("consent", "granted")  : session recording resumes
+ * - granted = false -> clarity("consent", "denied")   : session recording pauses
+ *   (Clarity still collects some aggregate, non-identifying analytics)
+ *
+ * Safe to call before the Clarity tag loads — `window.clarity` is a queue
+ * function (same pattern as gtag/fbq) that flushes once the real script loads.
+ */
+export function setClarityConsent(granted: boolean): void {
+  if (typeof window === "undefined") return;
+  if (typeof window.clarity !== "function") return;
+  window.clarity("consent", granted ? "granted" : "denied");
 }

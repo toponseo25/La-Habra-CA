@@ -409,6 +409,43 @@ fbq('track', 'PageView');`,
           />
         )}
 
+        {/* Microsoft Clarity — session recordings + heatmaps.
+            Loaded unconditionally (advanced consent mode, same as gtag.js) so
+            it can send consent-less pings even before the user accepts. The
+            follow-up inline script immediately sets the initial consent state
+            from localStorage so no session recording happens until the user
+            explicitly accepts (EEA/UK/CH compliant). */}
+        {BUSINESS.clarityProjectId && !isPlaceholder(BUSINESS.clarityProjectId) ? (
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `(function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window, document, "clarity", "script", "${BUSINESS.clarityProjectId}");`,
+              }}
+            />
+            {/* Set initial Clarity consent from localStorage BEFORE the real
+                Clarity tag loads. window.clarity is the queue function at this
+                point (created by the snippet above), so this call is queued
+                and flushed when clarity.js loads. The ConsentBanner component
+                updates this on subsequent user interaction. */}
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `try {
+  var sc = JSON.parse(localStorage.getItem('ras_consent_v1') || 'null');
+  if (window.clarity && sc && sc.choice === 'granted') {
+    window.clarity('consent', 'granted');
+  } else if (window.clarity) {
+    window.clarity('consent', 'denied');
+  }
+} catch(e) {}`,
+              }}
+            />
+          </>
+        ) : null}
+
         {/* Structured data — LocalBusiness / HVACBusiness */}
         <script
           type="application/ld+json"

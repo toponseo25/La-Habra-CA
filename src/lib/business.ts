@@ -77,6 +77,10 @@ export const BUSINESS = {
   metaPixelId: "XXXXXXXXXXXXXXX", // Meta Pixel — placeholder
   googleAdsConversionId: "AW-XXXXXXXXX",
   googleAdsConversionLabel: "xxxxxxxxxx",
+  // Microsoft Clarity — free session recordings + heatmaps.
+  // LIVE. Respects the ConsentBanner (calls clarity("consent", "granted"|"denied")
+  // in lockstep with Google Consent Mode v2).
+  clarityProjectId: "y9ncyba77m",
 
   // --- Social / review profiles (placeholders — replace with verified URLs) ---
   // googleBusinessProfileUrl is used as the "Read verified reviews on Google"

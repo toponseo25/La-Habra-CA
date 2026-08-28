@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Cookie, Check, X, Info } from "lucide-react";
-import { consentGranted, pushEvent } from "@/lib/analytics";
+import { consentGranted, pushEvent, setClarityConsent } from "@/lib/analytics";
 import { BUSINESS } from "@/lib/business";
 import { trackCtaClick } from "@/lib/analytics";
 
@@ -67,16 +67,26 @@ export function ConsentBanner() {
     if (stored) {
       if (stored.choice === "granted") {
         // Returning visitor who previously accepted — re-apply grant so gtag
-        // resumes full measurement immediately on this session.
+        // resumes full measurement immediately on this session. consentGranted()
+        // also calls setClarityConsent(true) so Clarity session recording resumes.
         consentGranted();
+      } else {
+        // Returning visitor who previously rejected — keep consent denied.
+        // Explicitly tell Clarity to stay paused (gtag defaults are already
+        // denied from layout.tsx bootstrap).
+        setClarityConsent(false);
       }
-      // If denied, leave defaults in place (gtag keeps sending consent-less pings).
       // Either way, do NOT show the banner again until the stored choice expires.
       return;
     }
 
-    // No stored choice — first visit (or expired). Show the banner after a
-    // short delay so it doesn't fight the hero entrance animation.
+    // No stored choice — first visit (or expired). Default BOTH Google Consent
+    // Mode (already denied via layout.tsx bootstrap) AND Clarity to denied so
+    // no session recording happens until the user explicitly accepts. gtag.js
+    // + Clarity both still load and send consent-less pings (advanced consent
+    // mode — modeled conversions enabled).
+    setClarityConsent(false);
+    // Show the banner after a short delay so it doesn't fight the hero animation.
     const t = setTimeout(() => setVisible(true), 1200);
     return () => clearTimeout(t);
   }, []);
@@ -94,8 +104,10 @@ export function ConsentBanner() {
 
   function handleReject() {
     writeStoredConsent("denied");
-    // Don't call consentGranted — leave defaults denied. gtag.js keeps
-    // sending consent-less pings (which is what powers modeled conversions).
+    // Don't call consentGranted — leave Google Consent Mode v2 defaults denied.
+    // gtag.js keeps sending consent-less pings (which is what powers modeled
+    // conversions). Explicitly pause Clarity session recording too.
+    setClarityConsent(false);
     setVisible(false);
     trackCtaClick("Consent Reject", "consent_banner", "scroll");
     pushEvent({
