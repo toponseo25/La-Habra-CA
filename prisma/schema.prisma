@@ -90,3 +90,56 @@ model Lead {
   @@index([zipCode])
   @@index([createdAt])
 }
+
+// RAS Heating & Air — server-side analytics event store.
+//
+// Every event the client fires (page_view, scroll, form_start, click_to_call,
+// generate_lead, etc.) is mirrored to this table via the /api/track endpoint.
+// This gives RAS:
+//   1. A server-side event log that survives ad blockers / ITP / iOS privacy
+//      restrictions (client-side pixels get blocked; this doesn't).
+//   2. A single source of truth for funnel analysis + CRM enrichment.
+//   3. A ready hook for server-side conversion forwarding (Google Ads Enhanced
+//      Conversions, Meta Conversions API / CAPI, etc.) — wire a worker to this
+//      table and forward new "generate_lead" rows to those APIs.
+model TrackingEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Anonymous client id (generated client-side, persisted in localStorage) so
+  // we can stitch a single visitor's events together across sessions.
+  clientId  String
+
+  // Canonical event name from the typed taxonomy in src/lib/analytics/events.ts
+  // (page_view, scroll, click, click_to_call, form_start, form_submit,
+  //  generate_lead, engagement_time, etc.)
+  name      String
+
+  // Full event payload as JSON (typed on the client; stored loose on server)
+  payload   String
+
+  // First-touch + last-touch attribution snapshot at event time, so every
+  // event is independently attributable even if analyzed out of order.
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  utmTerm      String?
+  utmContent   String?
+  gclid        String?
+  fbclid       String?
+  gbpReferral  String?
+  referrer     String?
+  landingPage  String?
+  source       String?
+
+  // Request context for fraud / dedup analysis
+  ipAddress  String?
+  userAgent  String?
+  sessionId  String?
+
+  @@index([clientId])
+  @@index([name])
+  @@index([createdAt])
+  @@index([source])
+}
+

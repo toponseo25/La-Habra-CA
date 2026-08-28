@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { SERVICES, BUSINESS } from "@/lib/business";
 import { CtaLink } from "@/components/landing/CtaLink";
+import { ServiceCardTracker } from "@/components/landing/ServiceCardTracker";
 
 const ICONS: Record<string, LucideIcon> = {
   Wind,
@@ -56,11 +57,16 @@ export function Services() {
         </div>
 
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {SERVICES.map((s) => {
+          {SERVICES.map((s, i) => {
             const Icon = ICONS[s.icon] ?? Wind;
             return (
-              <article
+              <ServiceCardTracker
                 key={s.slug}
+                slug={s.slug}
+                title={s.title}
+                index={i}
+              >
+              <article
                 className="group flex flex-col rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm transition-all duration-300 hover:shadow-xl hover:ring-orange-200 hover:-translate-y-1 overflow-hidden"
               >
                 {/* Top accent bar */}
@@ -95,6 +101,7 @@ export function Services() {
                   </CtaLink>
                 </div>
               </article>
+              </ServiceCardTracker>
             );
           })}
         </div>

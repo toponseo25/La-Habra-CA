@@ -48,9 +48,13 @@ export function CtaLink({
 
   const handleClick = () => {
     if (mode === "call") {
-      trackClickToCall(trackingLocation);
+      trackClickToCall(trackingLocation, BUSINESS.phoneDisplay);
     } else {
-      trackCtaClick(trackingLabel, trackingLocation);
+      trackCtaClick(
+        trackingLabel,
+        trackingLocation,
+        mode === "scroll" ? "scroll" : mode === "link" ? "external" : "phone",
+      );
     }
   };
 

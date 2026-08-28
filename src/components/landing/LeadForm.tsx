@@ -27,7 +27,12 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { BUSINESS } from "@/lib/business";
-import { captureAttribution, trackLead } from "@/lib/analytics";
+import {
+  captureAttribution,
+  trackLead,
+  trackFormSubmit,
+  deriveSource,
+} from "@/lib/analytics";
 
 const SERVICE_OPTIONS = [
   "AC Repair",
@@ -107,22 +112,26 @@ export function LeadForm() {
     setSubmitting(true);
     setServerError(null);
     try {
-      const attribution = captureAttribution();
+      // Attribution now returns { firstTouch, lastTouch } — we prefer last
+      // touch (the campaign that drove THIS conversion) but fall back to
+      // first touch so we never lose the original ad click.
+      const { firstTouch, lastTouch } = captureAttribution();
+      const touch = Object.keys(lastTouch).length ? lastTouch : firstTouch;
 
       const payload = {
         ...values,
         consent: true,
-        source: attribution.utm_source ?? "direct",
-        utm_source: attribution.utm_source,
-        utm_medium: attribution.utm_medium,
-        utm_campaign: attribution.utm_campaign,
-        utm_term: attribution.utm_term,
-        utm_content: attribution.utm_content,
-        referrer: attribution.referrer,
-        landingPage: attribution.landing_page,
-        gclid: attribution.gclid,
-        fbclid: attribution.fbclid,
-        gbpReferral: attribution.gbp,
+        source: deriveSource(touch),
+        utm_source: touch.utm_source,
+        utm_medium: touch.utm_medium,
+        utm_campaign: touch.utm_campaign,
+        utm_term: touch.utm_term,
+        utm_content: touch.utm_content,
+        referrer: touch.referrer,
+        landingPage: touch.landing_page,
+        gclid: touch.gclid,
+        fbclid: touch.fbclid,
+        gbpReferral: touch.gbp,
       };
 
       const res = await fetch("/api/leads", {
@@ -137,10 +146,19 @@ export function LeadForm() {
           data?.issues?.[0]?.message ||
           data?.error ||
           "Something went wrong. Please call us instead.";
+        // Fire a form_submit with valid:false so we can measure validation
+        // drop-off in the funnel (which field is killing conversions).
+        trackFormSubmit("ras_la_habra_lead_form", values.serviceNeeded, false);
         throw new Error(msg);
       }
 
-      trackLead(values.serviceNeeded, "form");
+      // Fire form_submit (valid:true) + the GA4 generate_lead + Meta Lead
+      // conversion events. We pass the server-returned lead_id so the
+      // server-side CRM record can be joined to the GA4 conversion event.
+      trackFormSubmit("ras_la_habra_lead_form", values.serviceNeeded, true);
+      trackLead(values.serviceNeeded, "form", {
+        leadId: data.leadId,
+      });
       setSuccess(true);
       reset();
       toast({

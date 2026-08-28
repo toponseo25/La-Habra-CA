@@ -53,7 +53,7 @@ export function StickyMobileCta() {
         <div className="grid grid-cols-2 gap-px">
           <a
             href={`tel:${BUSINESS.phoneTel}`}
-            onClick={() => trackClickToCall("sticky_mobile_bar")}
+            onClick={() => trackClickToCall("sticky_mobile_bar", BUSINESS.phoneDisplay)}
             className="flex items-center justify-center gap-2 py-3.5 bg-slate-900 text-white font-bold active:bg-slate-800"
             aria-label={`Call RAS Heating & Air at ${BUSINESS.phoneDisplay}`}
           >
@@ -62,7 +62,7 @@ export function StickyMobileCta() {
           </a>
           <a
             href="#lead-form"
-            onClick={() => trackCtaClick("Free Estimate", "sticky_mobile_bar")}
+            onClick={() => trackCtaClick("Free Estimate", "sticky_mobile_bar", "scroll")}
             className="flex items-center justify-center gap-2 py-3.5 bg-orange-500 text-white font-bold active:bg-orange-600"
             aria-label="Scroll to the free estimate form"
           >

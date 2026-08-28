@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { BUSINESS } from "@/lib/business";
+import { AnalyticsProvider } from "@/components/landing/AnalyticsProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -256,6 +257,109 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* ============================================================
+         * ANALYTICS DATA LAYER BOOTSTRAP
+         * ============================================================
+         * This MUST run before any tag (GTM, GA4, Meta Pixel) loads.
+         * It:
+         *   1. Initializes window.dataLayer (the GTM data layer)
+         *   2. Generates a stable anonymous client_id (localStorage, 2yr)
+         *      so events from the same visitor can be stitched together
+         *   3. Generates a per-tab session_id (sessionStorage)
+         *   4. Pushes Google Consent Mode v2 DEFAULTS (default-deny for
+         *      ad_storage — Google's recommended baseline). The
+         *      AnalyticsProvider uplifts to "granted" on first mount
+         *      because this is a US-only HVAC campaign with no cookie
+         *      banner. Replace that uplift with a banner-driven one if
+         *      the campaign expands to the EU/CA/UK.
+         *   5. Captures first-touch + last-touch attribution from the
+         *      landing URL (utm_*, gclid, fbclid, gbclid, referrer) so
+         *      every subsequent event — including the very first
+         *      page_view — already has full attribution context.
+         * ============================================================ */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+window.__rasAnalytics = window.__rasAnalytics || { clientId: "", sessionId: "", debug: ${process.env.NODE_ENV !== "production" ? "true" : "false"}, initialized: false };
+(function(){
+  function genId(){
+    try { if (crypto && crypto.randomUUID) return crypto.randomUUID(); } catch(e){}
+    return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,10);
+  }
+  function readLS(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function writeLS(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+  function readSS(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }
+  function writeSS(k,v){ try { sessionStorage.setItem(k,v); } catch(e){} }
+  var cid = readLS("ras_client_id");
+  if (!cid) { cid = genId(); writeLS("ras_client_id", cid); }
+  var sid = readSS("ras_session_id");
+  if (!sid) { sid = genId(); writeSS("ras_session_id", sid); }
+  window.__rasAnalytics.clientId = cid;
+  window.__rasAnalytics.sessionId = sid;
+  window.__rasAnalytics.initialized = true;
+})();
+
+/* Google Consent Mode v2 defaults — must be pushed BEFORE GTM/GA4/Meta load */
+window.dataLayer.push({
+  event: "consent_default",
+  consent_state: {
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+    analytics_storage: "denied",
+    functionality_storage: "granted",
+    security_storage: "granted"
+  }
+});
+if (typeof window.gtag === "function") {
+  window.gtag("consent", "default", {
+    ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied",
+    analytics_storage: "denied", functionality_storage: "granted", security_storage: "granted"
+  });
+}
+
+/* First-touch + last-touch attribution capture (runs once on load) */
+(function(){
+  function clean(o){ var out={}; for (var k in o){ if (o[k]!==undefined && o[k]!==null && o[k]!=="") out[k]=o[k]; } return out; }
+  var p = new URLSearchParams(window.location.search);
+  var ref = document.referrer || "";
+  var fresh = clean({
+    utm_source: p.get("utm_source"),
+    utm_medium: p.get("utm_medium"),
+    utm_campaign: p.get("utm_campaign"),
+    utm_term: p.get("utm_term"),
+    utm_content: p.get("utm_content"),
+    gclid: p.get("gclid"),
+    fbclid: p.get("fbclid"),
+    gbp: p.get("gbp"),
+    referrer: ref,
+    landing_page: window.location.href,
+    captured_at: new Date().toISOString()
+  });
+  var hasNew = !!(fresh.utm_source || fresh.gclid || fresh.fbclid || fresh.gbp || (fresh.referrer && (function(r){ try { var h=new URL(r).hostname; return h!==window.location.hostname && !h.endsWith("."+window.location.hostname); } catch(e){ return false; } })(fresh.referrer)));
+  function readLS(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function writeLS(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+  function readSS(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }
+  function writeSS(k,v){ try { sessionStorage.setItem(k,v); } catch(e){} }
+  var ft = null;
+  try { ft = JSON.parse(readLS("ras_first_touch") || "null"); } catch(e){}
+  if (!ft || hasNew) {
+    ft = Object.assign({}, ft || {}, fresh);
+    writeLS("ras_first_touch", JSON.stringify(ft));
+  }
+  var now = Date.now();
+  var storedLast = null;
+  try { storedLast = JSON.parse(readSS("ras_last_touch") || "null"); } catch(e){}
+  var expired = !storedLast || storedLast.expires < now;
+  var last;
+  if (hasNew || expired || !storedLast) { last = fresh; }
+  else { last = storedLast.attribution; }
+  writeSS("ras_last_touch", JSON.stringify({ attribution: last, expires: now + 30*60*1000 }));
+  window.__rasAttribution = { firstTouch: ft, lastTouch: last };
+})();`,
+          }}
+        />
+
         {/* Google Tag Manager — loads GA4, Google Ads, and Meta Pixel together */}
         {isPlaceholder(BUSINESS.gtmContainerId) ? null : (
           <script
@@ -342,6 +446,7 @@ fbq('track', 'PageView');`,
           </noscript>
         )}
         {children}
+        <AnalyticsProvider />
         <Toaster />
       </body>
     </html>

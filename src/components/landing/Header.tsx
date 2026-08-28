@@ -86,7 +86,7 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-3">
             <a
               href={`tel:${BUSINESS.phoneTel}`}
-              onClick={() => trackClickToCall("header")}
+              onClick={() => trackClickToCall("header", BUSINESS.phoneDisplay)}
               className="flex items-center gap-2 text-slate-900 hover:text-orange-600 transition-colors"
               aria-label={`Call ${BUSINESS.phoneDisplay}`}
             >
@@ -99,7 +99,7 @@ export function Header() {
             </a>
             <a
               href="#lead-form"
-              onClick={() => trackCtaClick("Free Estimate", "header")}
+              onClick={() => trackCtaClick("Free Estimate", "header", "scroll")}
               className="inline-flex items-center rounded-full bg-orange-500 hover:bg-orange-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition-all active:scale-95"
             >
               Free Estimate
@@ -110,7 +110,7 @@ export function Header() {
           <div className="flex items-center gap-2 lg:hidden">
             <a
               href={`tel:${BUSINESS.phoneTel}`}
-              onClick={() => trackClickToCall("header_mobile")}
+              onClick={() => trackClickToCall("header_mobile", BUSINESS.phoneDisplay)}
               className="flex items-center gap-1.5 rounded-full bg-slate-900 px-3.5 py-2 text-sm font-bold text-white active:scale-95"
               aria-label={`Call ${BUSINESS.phoneDisplay}`}
             >
@@ -156,7 +156,7 @@ export function Header() {
               href="#lead-form"
               onClick={() => {
                 setMenuOpen(false);
-                trackCtaClick("Free Estimate", "header_mobile_menu");
+                trackCtaClick("Free Estimate", "header_mobile_menu", "scroll");
               }}
               className="mt-3 flex items-center justify-center rounded-full bg-orange-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/30"
             >
