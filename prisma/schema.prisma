@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily to serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// RAS Heating & Air — Lead model for the La Habra landing page CRM pipeline.
+// Captures every inbound lead (form or click-to-call) along with full source
+// attribution so each conversion can be traced back to its campaign/UTM source.
+model Lead {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // --- Contact information ---
+  firstName    String
+  lastName     String
+  phone        String
+  email        String
+  zipCode      String
+
+  // --- Service request details ---
+  serviceNeeded   String
+  appointmentTime String?
+  message         String?
+
+  // --- Source attribution / lead tracking ---
+  // Where the lead came from (organic, paid, GBP, direct, referral, etc.)
+  source       String?
+  // utm_* campaign parameters (captured from URL on form submission)
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  utmTerm      String?
+  utmContent   String?
+  // Raw referrer URL and landing page for full traceability
+  referrer     String?
+  landingPage  String?
+  // gclid (Google Ads) / fbclid (Meta) / gbp (Google Business Profile) click identifiers
+  gclid        String?
+  fbclid       String?
+  gbpReferral  String?
+
+  // --- CRM pipeline state ---
+  // Current stage in the RAS pipeline: new | contacted | appointment | estimate | booked | completed | lost
+  stage        String   @default("new")
+  // How the lead entered the system: form | call
+  entryPoint   String   @default("form")
+  // RAS internal notifications sent (comma separated list for quick audit)
+  notificationsSent String?
+  // Free-form internal notes for the RAS team
+  notes        String?
+
+  // --- Compliance ---
+  // IP + user agent for spam / fraud analysis and consent record
+  ipAddress    String?
+  userAgent    String?
+  // Did the homeowner consent to be contacted (checkbox on the form)
+  consent      Boolean  @default(false)
+
+  @@index([stage])
+  @@index([source])
+  @@index([zipCode])
+  @@index([createdAt])
+}
