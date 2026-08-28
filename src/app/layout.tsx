@@ -359,7 +359,15 @@ if (typeof window.gtag === "function") {
           }}
         />
 
-        {/* Google Tag Manager — loads GA4, Google Ads, and Meta Pixel together */}
+        {/* Google Tag Manager — the canonical tag manager. When this ID is
+            live, GTM loads and manages ALL tags (GA4, Google Ads, Meta Pixel,
+            etc.) through its container. The direct GA4 gtag.js fallback below
+            is intentionally skipped when GTM is live to avoid double-firing
+            GA4 page views. Custom events still flow through window.dataLayer
+            which GTM reads via the gtm.js bootstrap.
+            Consent Mode v2: the inline bootstrap script above already pushed
+            consent defaults + identity BEFORE this gtm.js loads (critical
+            ordering — GTM reads the first consent state as the default). */}
         {isPlaceholder(BUSINESS.gtmContainerId) ? null : (
           <script
             dangerouslySetInnerHTML={{
@@ -372,7 +380,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           />
         )}
 
-        {/* GA4 direct fallback (only when GTM is not configured) */}
+        {/* GA4 direct fallback — ONLY when GTM is not configured. When GTM is
+            live (gtmContainerId is a real ID), this block is skipped and GA4
+            is loaded through GTM's container instead. This fallback exists
+            so a no-GTM deployment still gets GA4 measurement. */}
         {isPlaceholder(BUSINESS.gtmContainerId) &&
         !isPlaceholder(BUSINESS.ga4MeasurementId) ? (
           <>

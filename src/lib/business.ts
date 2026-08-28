@@ -72,9 +72,16 @@ export const BUSINESS = {
   // These are read by the analytics scripts in src/app/layout.tsx. Real IDs
   // render the corresponding tag; placeholder IDs (containing "XXXX") render
   // as no-ops so the page ships zero tracking until the ID is dropped in.
-  ga4MeasurementId: "G-L1L334DY0K", // Google Analytics 4 — LIVE
-  gtmContainerId: "GTM-XXXXXXX", // Google Tag Manager — placeholder (set to enable GTM-managed tags)
-  metaPixelId: "XXXXXXXXXXXXXXX", // Meta Pixel — placeholder
+  //
+  // ARCHITECTURE: Google Tag Manager (GTM) is the canonical tag manager. When
+  // gtmContainerId is a real ID, GTM loads and manages ALL tags (GA4, Google
+  // Ads, Meta Pixel, etc.) through its container. The direct GA4 gtag.js
+  // fallback in layout.tsx is ONLY rendered when GTM is a placeholder (so a
+  // no-GTM setup still gets GA4). When GTM is live, the direct gtag.js is
+  // skipped to avoid double-firing GA4.
+  ga4MeasurementId: "G-L1L334DY0K", // Google Analytics 4 — LIVE (managed by GTM)
+  gtmContainerId: "GTM-MTJPLVS4", // Google Tag Manager — LIVE (manages GA4/Ads/Meta)
+  metaPixelId: "XXXXXXXXXXXXXXX", // Meta Pixel — placeholder (configure as a GTM tag, not direct)
   googleAdsConversionId: "AW-XXXXXXXXX",
   googleAdsConversionLabel: "xxxxxxxxxx",
   // Microsoft Clarity — free session recordings + heatmaps.
