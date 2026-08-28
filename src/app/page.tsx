@@ -11,6 +11,8 @@ import { Faq } from "@/components/landing/Faq";
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
 import { StickyMobileCta } from "@/components/landing/StickyMobileCta";
+import { ScrollProgress } from "@/components/landing/ScrollProgress";
+import { BackToTop } from "@/components/landing/BackToTop";
 
 /**
  * RAS Heating & Air — La Habra HVAC Lead Generation Landing Page.
@@ -44,6 +46,9 @@ export default function Home() {
         Skip to content
       </a>
 
+      {/* Scroll progress bar (top of viewport) */}
+      <ScrollProgress />
+
       <Header />
 
       <main id="main" className="flex-1">
@@ -61,6 +66,7 @@ export default function Home() {
 
       <Footer />
       <StickyMobileCta />
+      <BackToTop />
     </div>
   );
 }

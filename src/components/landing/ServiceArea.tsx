@@ -1,6 +1,7 @@
 import { MapPin, Navigation, Building2, Phone, CheckCircle2 } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 import { CtaLink } from "@/components/landing/CtaLink";
+import { Reveal, Stagger, StaggerItem } from "@/components/landing/Motion";
 
 /**
  * Local Service Area section (brief section #6).
@@ -20,6 +21,7 @@ export function ServiceArea() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left: copy + city list */}
+          <Reveal variant="fadeLeft">
           <div>
             <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-orange-600">
               <Navigation className="h-3.5 w-3.5" aria-hidden />
@@ -39,9 +41,9 @@ export function ServiceArea() {
               times and technicians who know your neighborhood.
             </p>
 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+            <Stagger className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
               {BUSINESS.serviceAreaCities.map((city, i) => (
-                <div
+                <StaggerItem
                   key={city}
                   className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 ${
                     i === 0
@@ -67,9 +69,9 @@ export function ServiceArea() {
                       </span>
                     )}
                   </span>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </Stagger>
 
             <p className="mt-5 text-sm text-slate-500">
               Not sure if you're in our area? Reach out — we'll confirm
@@ -94,8 +96,10 @@ export function ServiceArea() {
               />
             </div>
           </div>
+          </Reveal>
 
           {/* Right: stylized radius map */}
+          <Reveal variant="fadeRight" delay={0.1}>
           <div className="relative">
             <div className="relative aspect-square max-w-md mx-auto">
               {/* Outer radius ring */}
@@ -179,6 +183,7 @@ export function ServiceArea() {
               />
             </div>
           </div>
+          </Reveal>
         </div>
       </div>
     </section>

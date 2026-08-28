@@ -119,4 +119,26 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Smooth scrolling for in-page anchor navigation. Respects reduced-motion
+     preference — users who request reduced motion get instant jumps. */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem; /* offset for sticky header (h-16 = 4rem + 1rem gap) */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    /* Disable framer-motion transitions for users who request reduced motion.
+       Framer-motion respects this via its `useReducedMotion` hook, but we
+       also kill CSS transitions/animations globally as a safety net. */
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }

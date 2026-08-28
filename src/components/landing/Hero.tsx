@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
 import { Phone, Star, ShieldCheck, Clock, BadgeDollarSign, MapPin, Wrench, Flame, Snowflake } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 import { CtaLink } from "@/components/landing/CtaLink";
@@ -11,7 +14,42 @@ const TRUST_INDICATORS = [
   { icon: MapPin, label: "Local HVAC Pros" },
 ];
 
+/**
+ * Page-load entrance animation container.
+ *
+ * The hero content animates in as a staggered sequence — each element fades +
+ * slides up 0.08s after the previous — so the eye is led from the local badge
+ * → headline → copy → phone → CTAs → trust badges. This is the only
+ * "immediate" (on-mount) animation on the page; everything else is scroll-
+ * triggered. The sequence respects reduced-motion (renders fully visible).
+ */
 export function Hero() {
+  const prefersReduced = useReducedMotion();
+
+  // Reduced-motion: render everything visible with no animation.
+  if (prefersReduced) {
+    return <HeroContent animate={false} />;
+  }
+  return <HeroContent animate />;
+}
+
+function HeroContent({ animate }: { animate: boolean }) {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08, delayChildren: 0.15 },
+    },
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
+    },
+  };
+
   return (
     <section
       id="top"
@@ -31,32 +69,47 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
-        <div className="max-w-3xl">
+        <motion.div
+          className="max-w-3xl"
+          initial={animate ? "hidden" : undefined}
+          animate={animate ? "visible" : undefined}
+          variants={animate ? containerVariants : undefined}
+        >
           {/* Local badge */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur px-3.5 py-1.5 text-xs font-semibold text-white">
+          <motion.div
+            variants={animate ? itemVariants : undefined}
+            className="inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur px-3.5 py-1.5 text-xs font-semibold text-white"
+          >
             <MapPin className="h-3.5 w-3.5 text-orange-400" aria-hidden />
             Serving La Habra, CA &amp; nearby communities
-          </div>
+          </motion.div>
 
           {/* Headline */}
-          <h1
+          <motion.h1
             id="hero-heading"
+            variants={animate ? itemVariants : undefined}
             className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.05]"
           >
             Reliable HVAC Service in{" "}
             <span className="text-orange-400">La Habra, CA</span>
-          </h1>
+          </motion.h1>
 
           {/* Supporting copy */}
-          <p className="mt-5 text-lg sm:text-xl text-slate-200 max-w-2xl leading-relaxed">
+          <motion.p
+            variants={animate ? itemVariants : undefined}
+            className="mt-5 text-lg sm:text-xl text-slate-200 max-w-2xl leading-relaxed"
+          >
             Fast, professional heating and air conditioning service for
             homeowners in La Habra and surrounding neighborhoods. AC repair,
             AC replacement, furnace repair, mini-splits &amp; emergency HVAC
             service — done right.
-          </p>
+          </motion.p>
 
           {/* Phone (very prominent, as required) */}
-          <div className="mt-7 flex items-center gap-3">
+          <motion.div
+            variants={animate ? itemVariants : undefined}
+            className="mt-7 flex items-center gap-3"
+          >
             <span className="text-sm font-medium text-slate-300">
               Call us right now:
             </span>
@@ -71,10 +124,13 @@ export function Hero() {
               <Phone className="h-6 w-6 sm:h-7 sm:w-7 text-orange-400" aria-hidden />
               {BUSINESS.phoneDisplay}
             </CtaLink>
-          </div>
+          </motion.div>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <motion.div
+            variants={animate ? itemVariants : undefined}
+            className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4"
+          >
             <CtaLink
               mode="scroll"
               label="GET A FREE ESTIMATE"
@@ -89,10 +145,13 @@ export function Hero() {
               trackingLocation="hero"
               className={ctaButtonClass("secondary")}
             />
-          </div>
+          </motion.div>
 
           {/* Trust indicators */}
-          <ul className="mt-9 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-3 max-w-3xl">
+          <motion.ul
+            variants={animate ? itemVariants : undefined}
+            className="mt-9 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-3 max-w-3xl"
+          >
             {TRUST_INDICATORS.map((t) => (
               <li
                 key={t.label}
@@ -102,10 +161,13 @@ export function Hero() {
                 <span>{t.label}</span>
               </li>
             ))}
-          </ul>
+          </motion.ul>
 
           {/* Star rating trust line (no fabricated count) */}
-          <p className="mt-5 flex items-center gap-2 text-sm text-slate-300">
+          <motion.p
+            variants={animate ? itemVariants : undefined}
+            className="mt-5 flex items-center gap-2 text-sm text-slate-300"
+          >
             <span className="flex" aria-hidden>
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
@@ -115,8 +177,8 @@ export function Hero() {
               ))}
             </span>
             Trusted by La Habra homeowners — see what customers say below.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
 
       {/* Decorative flame/snowflake accent strip showing heating + cooling duality */}

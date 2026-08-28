@@ -13,6 +13,7 @@ import {
 import { SERVICES, BUSINESS } from "@/lib/business";
 import { CtaLink } from "@/components/landing/CtaLink";
 import { ServiceCardTracker } from "@/components/landing/ServiceCardTracker";
+import { Reveal, Stagger, StaggerItem } from "@/components/landing/Motion";
 
 const ICONS: Record<string, LucideIcon> = {
   Wind,
@@ -39,24 +40,26 @@ export function Services() {
       aria-labelledby="services-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-orange-600">
-            <Wrench className="h-3.5 w-3.5" aria-hidden />
-            HVAC Services in La Habra
-          </p>
-          <h2
-            id="services-heading"
-            className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900"
-          >
-            Complete Heating &amp; Air Conditioning Service
-          </h2>
-          <p className="mt-4 text-lg text-slate-600">
-            From a single AC repair to a full system replacement, RAS Heating
-            &amp; Air handles every part of home comfort for La Habra homeowners.
-          </p>
-        </div>
+        <Reveal variant="fadeUp">
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-orange-600">
+              <Wrench className="h-3.5 w-3.5" aria-hidden />
+              HVAC Services in La Habra
+            </p>
+            <h2
+              id="services-heading"
+              className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900"
+            >
+              Complete Heating &amp; Air Conditioning Service
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              From a single AC repair to a full system replacement, RAS Heating
+              &amp; Air handles every part of home comfort for La Habra homeowners.
+            </p>
+          </div>
+        </Reveal>
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <Stagger slow className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {SERVICES.map((s, i) => {
             const Icon = ICONS[s.icon] ?? Wind;
             return (
@@ -66,12 +69,13 @@ export function Services() {
                 title={s.title}
                 index={i}
               >
-              <article
+              <StaggerItem
+                as="article"
                 className="group flex flex-col rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm transition-all duration-300 hover:shadow-xl hover:ring-orange-200 hover:-translate-y-1 overflow-hidden"
               >
                 {/* Top accent bar */}
                 <div
-                  className="h-1.5 bg-gradient-to-r from-orange-500 to-teal-500 opacity-80"
+                  className="h-1.5 bg-gradient-to-r from-orange-500 to-teal-500 opacity-80 group-hover:opacity-100 transition-opacity"
                   aria-hidden
                 />
 
@@ -100,35 +104,37 @@ export function Services() {
                     <ArrowRight className="h-4 w-4" aria-hidden />
                   </CtaLink>
                 </div>
-              </article>
+              </StaggerItem>
               </ServiceCardTracker>
             );
           })}
-        </div>
+        </Stagger>
 
         {/* Bottom CTA row */}
-        <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-6 sm:p-8">
-          <p className="text-base sm:text-lg font-semibold text-slate-900 text-center sm:text-left">
-            Not sure what you need? We'll diagnose it and give you honest options.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <CtaLink
-              mode="scroll"
-              href="#lead-form"
-              label="Get a Free Estimate"
-              trackingLabel="Get a Free Estimate"
-              trackingLocation="services_bottom"
-              className="inline-flex items-center justify-center rounded-full bg-orange-500 hover:bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition-all active:scale-95"
-            />
-            <CtaLink
-              mode="call"
-              label={`Call ${BUSINESS.phoneDisplay}`}
-              trackingLabel={`Call ${BUSINESS.phoneDisplay}`}
-              trackingLocation="services_bottom"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 hover:bg-slate-800 px-6 py-3 text-sm font-bold text-white transition-all active:scale-95"
-            />
+        <Reveal variant="fadeUp" delay={0.15}>
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-6 sm:p-8">
+            <p className="text-base sm:text-lg font-semibold text-slate-900 text-center sm:text-left">
+              Not sure what you need? We'll diagnose it and give you honest options.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+              <CtaLink
+                mode="scroll"
+                href="#lead-form"
+                label="Get a Free Estimate"
+                trackingLabel="Get a Free Estimate"
+                trackingLocation="services_bottom"
+                className="inline-flex items-center justify-center rounded-full bg-orange-500 hover:bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition-all active:scale-95"
+              />
+              <CtaLink
+                mode="call"
+                label={`Call ${BUSINESS.phoneDisplay}`}
+                trackingLabel={`Call ${BUSINESS.phoneDisplay}`}
+                trackingLocation="services_bottom"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 hover:bg-slate-800 px-6 py-3 text-sm font-bold text-white transition-all active:scale-95"
+              />
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

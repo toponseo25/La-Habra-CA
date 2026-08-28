@@ -1,6 +1,7 @@
 import { ArrowRight, Wrench, Snowflake, Flame, AirVent } from "lucide-react";
 import { CtaLink } from "@/components/landing/CtaLink";
 import { BUSINESS } from "@/lib/business";
+import { Reveal, Stagger, StaggerItem } from "@/components/landing/Motion";
 
 const PROJECTS = [
   {
@@ -51,27 +52,30 @@ export function ProjectShowcase() {
       aria-labelledby="projects-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-orange-600">
-            <Wrench className="h-3.5 w-3.5" aria-hidden />
-            Recent Work
-          </p>
-          <h2
-            id="projects-heading"
-            className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900"
-          >
-            Real HVAC Projects in &amp; Around La Habra
-          </h2>
-          <p className="mt-4 text-lg text-slate-600">
-            A look at the kind of work we do for La Habra homeowners every week —
-            from quick repairs to full system replacements.
-          </p>
-        </div>
+        <Reveal variant="fadeUp">
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-orange-600">
+              <Wrench className="h-3.5 w-3.5" aria-hidden />
+              Recent Work
+            </p>
+            <h2
+              id="projects-heading"
+              className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900"
+            >
+              Real HVAC Projects in &amp; Around La Habra
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              A look at the kind of work we do for La Habra homeowners every week —
+              from quick repairs to full system replacements.
+            </p>
+          </div>
+        </Reveal>
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <Stagger slow className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6">
           {PROJECTS.map((p) => (
-            <article
+            <StaggerItem
               key={p.title}
+              as="article"
               className="group overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm transition-all hover:shadow-xl"
             >
               <div className="relative overflow-hidden aspect-[16/9]">
@@ -92,34 +96,36 @@ export function ProjectShowcase() {
                   {p.summary}
                 </p>
               </div>
-            </article>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
 
         {/* CTA */}
-        <div className="mt-10 text-center">
-          <CtaLink
-            mode="scroll"
-            href="#lead-form"
-            label="Get a Free Estimate on My Project"
-            trackingLabel="Get a Free Estimate on My Project"
-            trackingLocation="projects"
-            className="inline-flex items-center gap-2 rounded-full bg-orange-500 hover:bg-orange-600 px-7 py-3.5 text-base font-bold text-white shadow-lg shadow-orange-500/30 transition-all active:scale-95"
-          >
-            Get a Free Estimate on My Project
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </CtaLink>
-          <p className="mt-3 text-sm text-slate-500">
-            Or call{" "}
+        <Reveal variant="fadeUp" delay={0.15}>
+          <div className="mt-10 text-center">
             <CtaLink
-              mode="call"
-              label={BUSINESS.phoneDisplay}
-              trackingLabel={BUSINESS.phoneDisplay}
+              mode="scroll"
+              href="#lead-form"
+              label="Get a Free Estimate on My Project"
+              trackingLabel="Get a Free Estimate on My Project"
               trackingLocation="projects"
-              className="font-bold text-slate-700 underline underline-offset-4 hover:text-orange-600"
-            />
-          </p>
-        </div>
+              className="inline-flex items-center gap-2 rounded-full bg-orange-500 hover:bg-orange-600 px-7 py-3.5 text-base font-bold text-white shadow-lg shadow-orange-500/30 transition-all active:scale-95"
+            >
+              Get a Free Estimate on My Project
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </CtaLink>
+            <p className="mt-3 text-sm text-slate-500">
+              Or call{" "}
+              <CtaLink
+                mode="call"
+                label={BUSINESS.phoneDisplay}
+                trackingLabel={BUSINESS.phoneDisplay}
+                trackingLocation="projects"
+                className="font-bold text-slate-700 underline underline-offset-4 hover:text-orange-600"
+              />
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

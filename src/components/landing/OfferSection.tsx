@@ -1,6 +1,7 @@
 import { Phone, Sparkles, ArrowRight, Clock } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 import { CtaLink } from "@/components/landing/CtaLink";
+import { Reveal, Stagger, StaggerItem } from "@/components/landing/Motion";
 
 /**
  * Offer section (brief section #7) — visually prominent band promoting the
@@ -27,7 +28,8 @@ export function OfferSection() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          <div className="lg:col-span-7">
+          <Reveal variant="fadeUp" className="lg:col-span-7">
+          <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 ring-1 ring-white/30 backdrop-blur px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
               <Sparkles className="h-3.5 w-3.5" aria-hidden />
               Limited-Time Offer for La Habra Homeowners
@@ -74,43 +76,50 @@ export function OfferSection() {
               />
             </div>
           </div>
+          </Reveal>
 
           {/* Right card: fast response promise */}
-          <div className="lg:col-span-5">
+          <Reveal variant="fadeRight" delay={0.15} className="lg:col-span-5">
             <div className="rounded-2xl bg-white/10 ring-1 ring-white/30 backdrop-blur p-6 sm:p-8">
               <p className="text-sm font-bold uppercase tracking-wider text-white/80">
                 What you get
               </p>
-              <ul className="mt-4 space-y-4">
-                {[
-                  {
-                    title: "A real technician at your home",
-                    body: "Not a salesperson — someone who actually diagnoses HVAC systems daily.",
-                  },
-                  {
-                    title: "Clear repair vs. replacement options",
-                    body: "We lay out what's wrong, what it costs, and when replacement makes more sense.",
-                  },
-                  {
-                    title: "Upfront, no-surprise pricing",
-                    body: "You approve the price before any work begins. Period.",
-                  },
-                ].map((b) => (
-                  <li key={b.title} className="flex gap-3">
-                    <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white text-orange-600 font-bold text-sm">
-                      ✓
-                    </span>
-                    <div>
-                      <p className="font-bold">{b.title}</p>
-                      <p className="text-sm text-white/85 mt-0.5 leading-relaxed">
-                        {b.body}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <Stagger>
+                <ul className="mt-4 space-y-4">
+                  {[
+                    {
+                      title: "A real technician at your home",
+                      body: "Not a salesperson — someone who actually diagnoses HVAC systems daily.",
+                    },
+                    {
+                      title: "Clear repair vs. replacement options",
+                      body: "We lay out what's wrong, what it costs, and when replacement makes more sense.",
+                    },
+                    {
+                      title: "Upfront, no-surprise pricing",
+                      body: "You approve the price before any work begins. Period.",
+                    },
+                  ].map((b) => (
+                    <StaggerItem
+                      key={b.title}
+                      as="li"
+                      className="flex gap-3"
+                    >
+                      <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white text-orange-600 font-bold text-sm">
+                        ✓
+                      </span>
+                      <div>
+                        <p className="font-bold">{b.title}</p>
+                        <p className="text-sm text-white/85 mt-0.5 leading-relaxed">
+                          {b.body}
+                        </p>
+                      </div>
+                    </StaggerItem>
+                  ))}
+                </ul>
+              </Stagger>
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>
